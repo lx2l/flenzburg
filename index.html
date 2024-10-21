@@ -34,9 +34,9 @@
             noStroke();
             frameRate(30);
 
-            // Create random organic blobs
+            // Create random organic blobs, positioned around the center of the canvas
             for (let i = 0; i < maxBlobs; i++) {
-                blobs.push(new RorschachBlob(random(width / 4), random(height / 2), random(100, 250)));
+                blobs.push(new RorschachBlob(width / 2 + random(-100, 100), height / 2 + random(-100, 100), random(100, 250)));
             }
         }
 
