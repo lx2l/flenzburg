@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ 
+   <title>Flenzburg By Jared López</title>
+    <link rel="icon" href="icon.png">
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        canvas {
+            display: block;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+</head>
+<body>
+    <script>
+        let blobs = [];
+        let maxBlobs = 6;
+
+        function setup() {
+            createCanvas(windowWidth, windowHeight);
+            noStroke();
+            frameRate(30);
+
+            // Create random organic blobs
+            for (let i = 0; i < maxBlobs; i++) {
+                blobs.push(new RorschachBlob(random(width / 4), random(height / 2), random(100, 250)));
+            }
+        }
+
+        function draw() {
+            background(255);
+
+            // Draw left side blobs and their symmetrical right counterparts
+            for (let i = 0; i < blobs.length; i++) {
+                blobs[i].move();
+                blobs[i].display();
+                drawMirrorBlob(blobs[i]);
+            }
+        }
+
+        // Draw symmetrical blob on the right
+        function drawMirrorBlob(blob) {
+            push();
+            translate(width, 0);
+            scale(-1, 1);  // Apply horizontal mirroring
+            blob.display();
+            pop();
+        }
+
+        class RorschachBlob {
+            constructor(x, y, size) {
+                this.x = x;
+                this.y = y;
+                this.size = size;
+                this.offsetX = random(-2, 2);
+                this.offsetY = random(-1.5, 1.5);
+                this.points = [];
+                this.createBlob();
+                this.noiseFactor = random(10);
+            }
+
+            // Create an array of points to form an organic, liquid-like shape
+            createBlob() {
+                let totalPoints = 14;
+                for (let i = 0; i < totalPoints; i++) {
+                    let angle = map(i, 0, totalPoints, 0, TWO_PI);
+                    let rad = this.size / 2 + random(-20, 20);  // Add more randomness to simulate organic shapes
+                    let x = this.x + cos(angle) * rad;
+                    let y = this.y + sin(angle) * rad;
+                    this.points.push({ x: x, y: y });
+                }
+            }
+
+            move() {
+                this.x += this.offsetX * 0.5;
+                this.y += this.offsetY * 0.5;
+
+                // Move each point slightly based on Perlin noise for smoother organic movement
+                for (let i = 0; i < this.points.length; i++) {
+                    this.points[i].x += map(noise(this.noiseFactor + i), 0, 1, -2, 2);
+                    this.points[i].y += map(noise(this.noiseFactor + i + 10), 0, 1, -2, 2);
+                }
+
+                this.noiseFactor += 0.01;  // Slowly evolve shapes
+            }
+
+            display() {
+                fill(0);
+                beginShape();
+                for (let i = 0; i < this.points.length; i++) {
+                    curveVertex(this.points[i].x, this.points[i].y);  // Use curveVertex for smoother, organic shapes
+                }
+                endShape(CLOSE);
+            }
+        }
+
+        // Resize canvas when the window size changes
+        function windowResized() {
+            resizeCanvas(windowWidth, windowHeight);
+        }
+    </script>
+</body>
+</html>
